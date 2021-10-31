@@ -1,65 +1,86 @@
 import com.codeborne.selenide.*;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.WebDriver;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.codeborne.selenide.Selectors.byXpath;
 import static com.codeborne.selenide.Selenide.*;
 
 public class Base {
 
-    private static final List<String> cookieAcceptWords = Stream.of(
-            "accpet", "confirm", "agree", "consent"
-    ).collect(Collectors.toList());
+    // TODO mozno kontrolovat pri klikani na akceptacie, ci element uz nema deti a az potom klikat
+    // TODO accept cookie extension pridat do selenium
+    // TODO co tak majnvat stranky sposobom, ze zadat klucove slovo do googla?
 
-    private static final List<String> cookieConfirmElementList = Stream.of("button", "div").collect(Collectors.toList());
+    public WebDriverConfigUtil configUtil = new WebDriverConfigUtil();
 
     public Base() {
-            System.setProperty("webdriver.chrome.driver", "C:\\Users\\mmatu\\Documents\\škola\\DP\\chromedriver_win32\\chromedriver.exe");
-        Configuration.browser = "chrome";
-        Configuration.startMaximized = true;
-        Configuration.browserVersion = "95";
+        configUtil.setConfiguration();
     }
 
     public static void openPage(String url) {
         open(url);
-        acceptCookies();
+        scrollToBottom();
+        sleep(5000);
+//        hideCookiesPopUps();
+        sleep(3000);
+        hideAds();
+
     }
 
-    public static void acceptCookies() {
-        cookieAcceptWords.forEach(Base::confirmCookies);
+
+    public static void hideAds() {
+        ElementsCollection ads = $$(By.tagName("iframe"));
+        if(ads != null) {
+            Selenide.executeJavaScript(
+                    "var adsElements = document.getElementsByTagName('iframe');" +
+                            "for(var i = 0, max = adsElements.length; i < max; i++)" +
+                            "{" +
+                            "adsElements[i].hidden = true;" +
+                            "}"
+            );
+
     }
 
-    public static void confirmCookies(String acceptWord) {
+}
 
-        cookieConfirmElementList.forEach(elementName -> {
-            ElementsCollection e = $$(byXpath("//" + elementName + "[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'" + acceptWord + "')]"));
-            e.forEach(element -> {
-                if (element.exists() && element.isDisplayed() && element.isEnabled()) {
-                    Selenide.executeJavaScript("arguments[0].click()", element);
-                }
-            });
-        });
+    public static void hideElement(String cookieWord, String cookieElement) {
+        Selenide.executeJavaScript(
+                "var xpath = \"//" + cookieElement + "[text()[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')," +
+                        cookieWord +
+                        ")]]\"" +
+                        "; var matchingElement = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null);" +
+                        " var foundEl = matchingElement.iterateNext();" +
+                         "console.log(foundEl.tagName);" +
+                        " while (foundEl) {" +
+                        "if(foundEl.tagName.toUpperCase != 'BODY') {" +
+                        "foundEl.style.display = 'none';}" +
+                        "foundEl = matchingElement.iterateNext(); " +
+                        "} "
+        );
+    }
+
+    public static void clickSafely(SelenideElement element) {
+        if (element.exists() && element.isDisplayed() && element.isEnabled()) {
+            Selenide.executeJavaScript("arguments[0].click()", element);
+        }
     }
 
     public static void takeScreenshot(String path, String scrnShotName) {
         SelenideElement element = $(By.tagName("body"));
-//      int htmlHeight = element.getSize().height;
-//      int windowChromeHeight = (int) (long) Selenide.executeJavaScript("return window.outerHeight - window.innerHeight");
-//      WebDriver driver = WebDriverRunner.getWebDriver();
-//      Dimension size = new Dimension(driver.manage().window().getSize().getWidth(), htmlHeight + windowChromeHeight);
-//      Selenide.executeJavaScript("window.scrollTo(0, 0);");
-//      driver.manage().window().setSize(size);
-//      WebDriver driver = WebDriverRunner.getWebDriver();
-//      Screenshot screenshot = new AShot().shootingStrategy(ShootingStrategies.viewportPasting(1000)).takeScreenshot(driver);
-
+        Long height = Selenide.executeJavaScript("return document.documentElement.scrollHeight;");
+        /*
+         * natiahne sa velkost okna podla vysky stranky
+         * aby bol screenshot celej stranky
+         */
+        WebDriver driver = WebDriverRunner.getWebDriver();
+        driver.manage().window().setSize(new Dimension(1000, height.intValue()));
         try {
             BufferedImage bi = Screenshots.takeScreenShotAsImage(element);
             File outputfile = new File(path + scrnShotName + ".jpg");
@@ -69,10 +90,17 @@ public class Base {
         }
     }
 
+    // obcas sa content stranky dynamicky dotahuje scrollovanim
+    public static void scrollToBottom() {
+        Selenide.executeJavaScript("window.scrollTo(0, document.body.scrollHeight);");
+    }
+
     @Test
     public void test() {
-        openPage("https://www.w3schools.com/js/default.asp");
+        openPage("https://www.nbcnews.com/");
+        sleep(5000);
         takeScreenshot("C:\\Users\\mmatu\\Documents\\webScapper\\screens\\", "sc5rn1");
+        this.configUtil.tearDown();
     }
 
 }
