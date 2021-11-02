@@ -14,8 +14,14 @@ import static com.codeborne.selenide.Selenide.*;
 
 public class Base {
 
-    // TODO mozno kontrolovat pri klikani na akceptacie, ci element uz nema deti a az potom klikat
-    // TODO accept cookie extension pridat do selenium
+    /*
+
+
+let csvContent = "data:text/csv;charset=utf-8,";
+for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").length; i++) {
+     csvContent += document.getElementsByClassName("topRankingGrid-titleName")[i].innerText + encodeURIComponent("\r\n");
+}
+     */
     // TODO co tak majnvat stranky sposobom, ze zadat klucove slovo do googla?
 
     public WebDriverConfigUtil configUtil = new WebDriverConfigUtil();

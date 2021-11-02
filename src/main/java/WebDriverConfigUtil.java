@@ -15,6 +15,8 @@ public class WebDriverConfigUtil {
         options.addArguments("user-data-dir=C:\\Users\\mmatu\\AppData\\Local\\Google\\Chrome\\User Data");
         options.addArguments("profile-directory=Profile 7");
         options.addArguments("--headless");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--ignore-certificate-errors");
         WebDriver driver = new ChromeDriver(options);
 //        driver.get("www.google.com");
         WebDriverRunner.setWebDriver(driver);
