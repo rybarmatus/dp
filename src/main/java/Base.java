@@ -3,12 +3,12 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
+import utils.WebDriverConfigUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -23,6 +23,8 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
 }
      */
     // TODO co tak majnvat stranky sposobom, ze zadat klucove slovo do googla?
+    // TODO heureka eshop scrapping
+    // TODO mozno prehodit na spring?
 
     public WebDriverConfigUtil configUtil = new WebDriverConfigUtil();
 
@@ -33,11 +35,9 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
     public static void openPage(String url) {
         open(url);
         scrollToBottom();
-        sleep(5000);
-//        hideCookiesPopUps();
-        sleep(3000);
+        sleep(500);
         hideAds();
-
+        sleep(500);
     }
 
 
@@ -101,12 +101,17 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
         Selenide.executeJavaScript("window.scrollTo(0, document.body.scrollHeight);");
     }
 
-    @Test
-    public void test() {
+
+    public void takeScreenshot() {
         openPage("https://www.nbcnews.com/");
         sleep(5000);
         takeScreenshot("C:\\Users\\mmatu\\Documents\\webScapper\\screens\\", "sc5rn1");
         this.configUtil.tearDown();
+    }
+
+    @Test
+    public void takeScreenshots() {
+        //TODO treba prebehnut list stringov, treba ukladat niekde mna suborov, lebo to su realne kategorie
     }
 
 }
