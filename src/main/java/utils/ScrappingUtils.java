@@ -1,3 +1,5 @@
+package utils;
+
 import com.codeborne.selenide.*;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -12,7 +14,7 @@ import java.io.IOException;
 
 import static com.codeborne.selenide.Selenide.*;
 
-public class Base {
+public class ScrappingUtils {
 
     /*
 
@@ -26,23 +28,39 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
     // TODO heureka eshop scrapping
     // TODO mozno prehodit na spring?
 
+    private static int counter = 0;
+
     public WebDriverConfigUtil configUtil = new WebDriverConfigUtil();
 
-    public Base() {
+    public ScrappingUtils() {
         configUtil.setConfiguration();
     }
 
     public static void openPage(String url) {
         open(url);
         scrollToBottom();
-        sleep(500);
+        sleep(250);
+        System.out.println(counter);
+        try {
+            $(By.tagName("body")).should(Condition.visible, java.time.Duration.ofSeconds(1L));
+
+        }
+        catch (com.codeborne.selenide.ex.ElementNotFound e) {
+            e.printStackTrace();
+        }
+
         hideAds();
-        sleep(500);
+        sleep(250);
     }
 
-
     public static void hideAds() {
-        ElementsCollection ads = $$(By.tagName("iframe"));
+        ElementsCollection ads = null;
+        try {
+            ads = $$(By.tagName("iframe"));
+        }
+        catch (com.codeborne.selenide.ex.ElementNotFound e) {
+            e.printStackTrace();
+        }
         if(ads != null) {
             Selenide.executeJavaScript(
                     "var adsElements = document.getElementsByTagName('iframe');" +
@@ -79,7 +97,14 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
     }
 
     public static void takeScreenshot(String path, String scrnShotName) {
-        SelenideElement element = $(By.tagName("body"));
+        SelenideElement element = null;
+        try {
+            element = $(By.tagName("body"));
+        }
+        catch (com.codeborne.selenide.ex.ElementNotFound e) {
+            e.printStackTrace();
+        }
+
         Long height = Selenide.executeJavaScript("return document.documentElement.scrollHeight;");
         /*
          * natiahne sa velkost okna podla vysky stranky
@@ -102,16 +127,10 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
     }
 
 
-    public void takeScreenshot() {
-        openPage("https://www.nbcnews.com/");
-        sleep(5000);
-        takeScreenshot("C:\\Users\\mmatu\\Documents\\webScapper\\screens\\", "sc5rn1");
-        this.configUtil.tearDown();
-    }
-
-    @Test
-    public void takeScreenshots() {
-        //TODO treba prebehnut list stringov, treba ukladat niekde mna suborov, lebo to su realne kategorie
+    public void scrapPage(String pageUrl, String path) {
+        openPage("http://www."+pageUrl);
+        takeScreenshot(path, String.valueOf(counter));
+        counter++;
     }
 
 }

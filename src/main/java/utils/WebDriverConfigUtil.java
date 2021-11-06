@@ -19,6 +19,7 @@ public class WebDriverConfigUtil {
         options.addArguments("--headless");
         options.addArguments("--disable-gpu");
         options.addArguments("--ignore-certificate-errors");
+        options.addArguments("--start-maximized");
         WebDriver driver = new ChromeDriver(options);
 //        driver.get("www.google.com");
         WebDriverRunner.setWebDriver(driver);
@@ -37,7 +38,6 @@ public class WebDriverConfigUtil {
         System.setProperty("selenide.browser", "C:\\Users\\mmatu\\Documents\\škola\\DP\\chromedriver_win32\\chromedriver.exe");
         setUp();
         Configuration.browser = "chrome";
-        Configuration.startMaximized = true;
         Configuration.browserVersion = "95";
         Configuration.headless = true;
     }
