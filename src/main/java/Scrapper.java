@@ -1,6 +1,7 @@
 import utils.ConfigEnum;
 import utils.CsvWorkerUtil;
 import utils.ScrappingUtils;
+import utils.WebDriverConfigUtil;
 
 import java.io.IOException;
 import java.util.Set;

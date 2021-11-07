@@ -56,4 +56,23 @@ public class CsvWorkerUtil {
         csv.close();
     }
 
+    public static boolean checkIfUrlAlreadyScrapped(String pageUrl) throws IOException {
+        BufferedReader csvReader = null;
+        try {
+            csvReader = new BufferedReader(new FileReader(ConfigEnum.SCRAPPED_PAGES_PATH.label));
+        } catch (FileNotFoundException e) {
+
+            FileWriter csv = new FileWriter(ConfigEnum.SCRAPPED_PAGES_PATH.label, true);
+            csv.close();
+            return false;
+        }
+        String row;
+        while ((row = csvReader.readLine()) != null) {
+            if(row.contains(pageUrl)) return true;
+        }
+        csvReader.close();
+
+        return false;
+    }
+
 }
