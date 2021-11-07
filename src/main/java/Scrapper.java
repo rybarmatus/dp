@@ -11,7 +11,6 @@ public class Scrapper {
 
     public void scrapPages() throws IOException {
         String path;
-        int count = 0;
         Set<String> csvFiles = CsvWorkerUtil.listFiles();
         for(String csvFile: csvFiles) {
             try {
@@ -20,8 +19,6 @@ public class Scrapper {
                     path = CsvWorkerUtil.createDirectory(csvFile);
                     if(path != null) {
                         this.sU.scrapPage(pageUrl, path);
-                        count++;
-                        if(count == 10) break;
                     }
 
                 }

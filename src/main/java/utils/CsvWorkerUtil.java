@@ -3,10 +3,7 @@ package utils;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,20 +25,12 @@ public class CsvWorkerUtil {
         }
     }
 
-//    public static Set<String> readFilesNames() throws IOException {
-//        Set<String> files = listFiles( ConfigEnum.CSV_DIR_PATH.label);
-//
-//        return files;
-//    }
-
     public static Set<String> getPagesFromCSV(String pathToCsv) throws IOException {
         Set<String> pages = new HashSet<>();
         BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
         String row;
         while ((row = csvReader.readLine()) != null) {
-//            String[] data = row.split(",");
             pages.add(row);
-            // do something with the data
         }
         csvReader.close();
         return pages;
@@ -57,6 +46,14 @@ public class CsvWorkerUtil {
         File file = new File(dirName);
         file.mkdirs();
         return dirName;
+    }
+
+    public static void storeScrapedUrl(String pageUrl) throws IOException {
+        FileWriter csv = new FileWriter(ConfigEnum.SCRAPPED_PAGES_PATH.label, true);
+        csv.append(pageUrl);
+        csv.append(",");
+        csv.append("\n");
+        csv.close();
     }
 
 }

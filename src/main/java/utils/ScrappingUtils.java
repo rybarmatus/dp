@@ -36,37 +36,35 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
         configUtil.setConfiguration();
     }
 
-    public static void openPage(String url) {
+    public static boolean openPage(String url) {
         try {
             open(url);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Nenacitala sa stranka -> " + url);
-            return;
+            return false;
         }
         scrollToBottom();
         sleep(250);
         try {
             $(By.tagName("body")).should(Condition.visible, java.time.Duration.ofSeconds(2L));
 
-        }
-        catch (com.codeborne.selenide.ex.ElementNotFound e) {
+        } catch (com.codeborne.selenide.ex.ElementNotFound e) {
             e.printStackTrace();
+            return false;
         }
 
-        hideAds();
-        sleep(250);
+        return hideAds();
     }
 
-    public static void hideAds() {
+    public static boolean hideAds() {
         ElementsCollection ads = null;
         try {
             ads = $$(By.tagName("iframe"));
-        }
-        catch (com.codeborne.selenide.ex.ElementNotFound e) {
+        } catch (com.codeborne.selenide.ex.ElementNotFound e) {
             e.printStackTrace();
+            return false;
         }
-        if(ads != null) {
+        if (ads != null) {
             Selenide.executeJavaScript(
                     "var adsElements = document.getElementsByTagName('iframe');" +
                             "for(var i = 0, max = adsElements.length; i < max; i++)" +
@@ -75,9 +73,9 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
                             "}"
             );
 
+        }
+        return true;
     }
-
-}
 
     public static void hideElement(String cookieWord, String cookieElement) {
         Selenide.executeJavaScript(
@@ -86,7 +84,7 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
                         ")]]\"" +
                         "; var matchingElement = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null);" +
                         " var foundEl = matchingElement.iterateNext();" +
-                         "console.log(foundEl.tagName);" +
+                        "console.log(foundEl.tagName);" +
                         " while (foundEl) {" +
                         "if(foundEl.tagName.toUpperCase != 'BODY') {" +
                         "foundEl.style.display = 'none';}" +
@@ -105,8 +103,7 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
         SelenideElement element = null;
         try {
             element = $(By.tagName("body"));
-        }
-        catch (com.codeborne.selenide.ex.ElementNotFound e) {
+        } catch (com.codeborne.selenide.ex.ElementNotFound e) {
             e.printStackTrace();
         }
 
@@ -133,8 +130,17 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
 
 
     public void scrapPage(String pageUrl, String path) {
-        openPage("http://www."+pageUrl);
-        takeScreenshot(path, String.valueOf(counter));
+
+        if (openPage("http://www." + pageUrl)) {
+            sleep(250);
+            try {
+                CsvWorkerUtil.storeScrapedUrl(pageUrl);
+            }
+            catch (IOException e) {
+                //
+            }
+            takeScreenshot(path, String.valueOf(counter));
+        }
         counter++;
     }
 
