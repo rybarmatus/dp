@@ -4,6 +4,7 @@ import com.codeborne.selenide.*;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import utils.WebDriverConfigUtil;
 
@@ -24,9 +25,8 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
      csvContent += document.getElementsByClassName("topRankingGrid-titleName")[i].innerText + encodeURIComponent("\r\n");
 }
      */
-    // TODO co tak majnvat stranky sposobom, ze zadat klucove slovo do googla?
+    // TODO ulozit stranky, ktore sa nenatiahli spolu s ich kategoriou -> mozno ich skusit neskor natiahnut
     // TODO heureka eshop scrapping
-    // TODO mozno prehodit na spring?
 
     private static int counter = 0;
 
@@ -37,12 +37,17 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
     }
 
     public static void openPage(String url) {
-        open(url);
+        try {
+            open(url);
+        }
+        catch (Exception e) {
+            System.out.println("Nenacitala sa stranka -> " + url);
+            return;
+        }
         scrollToBottom();
         sleep(250);
-        System.out.println(counter);
         try {
-            $(By.tagName("body")).should(Condition.visible, java.time.Duration.ofSeconds(1L));
+            $(By.tagName("body")).should(Condition.visible, java.time.Duration.ofSeconds(2L));
 
         }
         catch (com.codeborne.selenide.ex.ElementNotFound e) {

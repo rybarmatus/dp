@@ -21,6 +21,7 @@ public class WebDriverConfigUtil {
         options.addArguments("--ignore-certificate-errors");
         options.addArguments("--start-maximized");
         WebDriver driver = new ChromeDriver(options);
+        driver.manage().timeouts().pageLoadTimeout(java.time.Duration.ofSeconds(30));
 //        driver.get("www.google.com");
         WebDriverRunner.setWebDriver(driver);
     }

@@ -21,7 +21,7 @@ public class Scrapper {
                     if(path != null) {
                         this.sU.scrapPage(pageUrl, path);
                         count++;
-                        if(count == 10) continue;
+                        if(count == 10) break;
                     }
 
                 }
