@@ -6,12 +6,24 @@ import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.firefox.ProfilesIni;
+
+import java.io.File;
 
 
 public class WebDriverConfigUtil {
 
 
-    public void setUp() {
+    public void setUpChrome() {
+
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\mmatu\\Documents\\škola\\DP\\chromedriver_win32\\chromedriver.exe");
+        System.setProperty("selenide.browser", "C:\\Users\\mmatu\\Documents\\škola\\DP\\chromedriver_win32\\chromedriver.exe");
+        Configuration.browser = "chrome";
+        Configuration.browserVersion = "95";
+
         ChromeOptions options = new ChromeOptions();
         options.addArguments("user-data-dir=C:\\Users\\mmatu\\AppData\\Local\\Google\\Chrome\\User Data");
         options.addArguments("profile-directory=Profile 7");
@@ -19,36 +31,37 @@ public class WebDriverConfigUtil {
         options.addArguments("--disable-gpu");
         options.addArguments("--ignore-certificate-errors");
         options.addArguments("--start-maximized");
-        options.addArguments("enable-automation"); // https://stackoverflow.com/a/43840128/1689770
-        options.addArguments("--no-sandbox"); //https://stackoverflow.com/a/50725918/1689770
-        options.addArguments("--disable-infobars"); //https://stackoverflow.com/a/43840128/1689770
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--incognito");
         options.addArguments("--dns-prefetch-disable");
         options.addArguments("--disable-browser-side-navigation");
+        options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
+        options.addArguments("--disable-features=VizDisplayCompositor");
         WebDriver driver = new ChromeDriver(options);
         driver.manage().timeouts().pageLoadTimeout(java.time.Duration.ofSeconds(30));
-        driver.manage().timeouts().scriptTimeout(java.time.Duration.ofSeconds(15));
-        driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(15));
-        options.setPageLoadStrategy(PageLoadStrategy.EAGER);
-        options.addArguments("--disable-features=VizDisplayCompositor");
         WebDriverRunner.setWebDriver(driver);
     }
 
+    public void setUpFirefox() {
+        System.setProperty("webdriver.gecko.driver", "C:\\Users\\mmatu\\Documents\\škola\\DP\\firefox_driver\\geckodriver.exe");
+        ProfilesIni profile = new ProfilesIni();
+
+        FirefoxProfile fp = profile.getProfile("Test");
+
+        FirefoxOptions options = new FirefoxOptions()
+                .setHeadless(true)
+                .setAcceptInsecureCerts(true)
+                .setProfile(fp)
+                .setPageLoadStrategy(PageLoadStrategy.NORMAL)
+                .setPageLoadTimeout(java.time.Duration.ofSeconds(100))
+                .addArguments("--disable-gpu, --hide-scrollbars")
+                ;
+        WebDriver driver = new FirefoxDriver(options);
+        WebDriverRunner.setWebDriver(driver);
+    }
 
     public void tearDown() {
         WebDriver driver = WebDriverRunner.getWebDriver();
         driver.quit();
 
-    }
-
-    public void setConfiguration() {
-
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\mmatu\\Documents\\škola\\DP\\chromedriver_win32\\chromedriver.exe");
-        System.setProperty("selenide.browser", "C:\\Users\\mmatu\\Documents\\škola\\DP\\chromedriver_win32\\chromedriver.exe");
-        setUp();
-        Configuration.browser = "chrome";
-        Configuration.browserVersion = "95";
     }
 
 }

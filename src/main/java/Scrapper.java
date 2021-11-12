@@ -1,7 +1,5 @@
-import utils.ConfigEnum;
 import utils.CsvWorkerUtil;
 import utils.ScrappingUtils;
-import utils.WebDriverConfigUtil;
 
 import java.io.IOException;
 import java.util.Set;
@@ -13,12 +11,12 @@ public class Scrapper {
     public void scrapPages() throws IOException {
         String path;
         Set<String> csvFiles = CsvWorkerUtil.listFiles();
-        for(String csvFile: csvFiles) {
+        for (String csvFile : csvFiles) {
             try {
                 Set<String> pages = CsvWorkerUtil.getPagesFromCSV(csvFile);
-                for(String pageUrl: pages) {
+                for (String pageUrl : pages) {
                     path = CsvWorkerUtil.createDirectory(csvFile);
-                    if(path != null) {
+                    if (path != null) {
                         this.sU.scrapPage(pageUrl, path);
                     }
 
@@ -34,8 +32,7 @@ public class Scrapper {
         Scrapper scp = new Scrapper();
         try {
             scp.scrapPages();
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
     }

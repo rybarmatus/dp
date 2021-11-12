@@ -1,6 +1,5 @@
 package utils;
 
-import com.codeborne.selenide.WebDriverRunner;
 import org.openqa.selenium.*;
 
 import javax.imageio.ImageIO;

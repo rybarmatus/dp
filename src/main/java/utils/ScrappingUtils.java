@@ -22,17 +22,24 @@ public class ScrappingUtils {
 let csvContent = "data:text/csv;charset=utf-8,";
 for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").length; i++) {
      csvContent += document.getElementsByClassName("topRankingGrid-titleName")[i].innerText + encodeURIComponent("\r\n");
+
+     let csvContent = "data:text/csv;charset=utf-8,";
+document.querySelectorAll('div.cell.cell-md a').forEach(v => {
+    csvContent += v.innertText + encodeURIComponent("\r\n");
+});
+csvContent;
+
 }
      */
-    // TODO ulozit stranky, ktore sa nenatiahli spolu s ich kategoriou -> mozno ich skusit neskor natiahnut
     // TODO heureka eshop scrapping / alebo mozno bude lepsie amazon
 
     private static int counter = 0;
     public WebDriverConfigUtil configUtil = new WebDriverConfigUtil();
     private final ScreenShotUtil ssu = new ScreenShotUtil();
 
+
     public ScrappingUtils() {
-        configUtil.setConfiguration();
+        configUtil.setUpFirefox();
     }
 
     public boolean openPage(String pageUrl) {
@@ -46,15 +53,14 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
         }
         pageUrl = "http://www." + pageUrl;
         try {
-//            configUtil.tearDown();
-//            configUtil.setConfiguration();
             open(pageUrl);
         } catch (Exception e) {
             System.out.println("Nenacitala sa stranka -> " + pageUrl);
             return false;
         }
+        sleep(500);
         scrollToBottom();
-        sleep(250);
+
         try {
             $(By.tagName("body")).shouldBe(Condition.visible);
 
@@ -110,7 +116,7 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
     }
 
     public void takeScreenshot(String path, String scrnShotName) {
-        sleep(250);
+        sleep(5);
         SelenideElement element = null;
         try {
             element = $(By.tagName("body"));
@@ -119,26 +125,35 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
         }
 
         if (element == null) return;
-        long height = element.getSize().getHeight();
+        Long h = getHeight();
+        int height = 0;
+        if (h != null) height = h.intValue();
+        else {
+            height = element.getSize().getHeight();
+        }
+        long width = element.getSize().getWidth();
         /*
          * natiahne sa velkost okna podla vysky stranky
          * aby bol screenshot celej stranky
          */
         WebDriver driver = WebDriverRunner.getWebDriver();
-        driver.manage().window().setSize(new Dimension(1000, (int) height));
+        driver.manage().window().setSize(new Dimension((int) width, height));
         try {
 
             if (element.isDisplayed()) {
-                int h = element.getSize().getHeight();
-                int w = element.getSize().getWidth();
-                if (h > 0 && w > 0) {
-                    h = Math.min(h, 14000);
-                    this.ssu.shootWebElement(element, WebDriverRunner.getWebDriver(), path, String.valueOf(counter), h, w);
+                if (height > 0 && width > 0) {
+//                    width = Math.min(h, 14000);
+                    this.ssu.shootWebElement(element, WebDriverRunner.getWebDriver(), path, String.valueOf(counter), (int) height, (int) width);
                 }
             }
 
         } catch (Exception e) {
-            BufferedImage bi = Screenshots.takeScreenShotAsImage(element);
+            BufferedImage bi;
+            try {
+                bi = Screenshots.takeScreenShotAsImage(element);
+            } catch (Exception ee) {
+                return;
+            }
             File outputfile = new File(path + scrnShotName + ".png");
             if (bi == null) return;
             try {
@@ -149,9 +164,29 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
         }
     }
 
+    public Long getHeight() {
+        if($(By.tagName("body")).exists()) {
+            try {
+                return Selenide.executeJavaScript(" if(document.body != undefined) { return document.body.scrollHeight }");
+            }
+            catch (Exception e) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
     // obcas sa content stranky dynamicky dotahuje scrollovanim
     public static void scrollToBottom() {
-        Selenide.executeJavaScript("window.scrollTo(0, document.body.scrollHeight);");
+        if ($(By.tagName("body")).exists() && $(By.tagName("body")).isDisplayed()) {
+            try {
+                Selenide.executeJavaScript(" if (document.body != undefined && document.body != null) { window.scrollTo(0, document.body.scrollHeight); } ");
+            }
+            catch (Exception e) {
+                System.out.println("padol javascript");
+            }
+        }
     }
 
 
@@ -171,6 +206,12 @@ for(var i = 0; i < document.getElementsByClassName("topRankingGrid-titleName").l
     @Test
     public void tst() {
         scrapPage("designlovefest.com", ConfigEnum.SCRAPPED_PAGES_PATH.label);
+    }
+
+    @Test
+    public void tstt() {
+        open("http://www.mtb-news.de/");
+        scrollToBottom();
     }
 
 }
