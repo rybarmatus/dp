@@ -38,7 +38,7 @@ public class CsvWorkerUtil {
 
     public static String createDirectory(String dirName) {
         if (StringUtils.isBlank(dirName)) return null;
-
+        dirName = dirName.replace("C:\\Users\\mmatu\\Documents\\škola\\DP", "F:\\dp_data");
         if (!dirName.contains("~")) return null;
         if (dirName.contains(".csv")) dirName = dirName.replace(".csv", "");
         dirName = dirName.replace("~", "\\");
@@ -54,6 +54,20 @@ public class CsvWorkerUtil {
         csv.append(",");
         csv.append("\n");
         csv.close();
+    }
+
+    public static void storeScrapedUrlFailed(String pageUrl) {
+        try {
+            FileWriter csv = new FileWriter(ConfigEnum.SCRAPPED_PAGES_PATH_FAILED.label, true);
+            csv.append(pageUrl);
+            csv.append(",");
+            csv.append("\n");
+            csv.close();
+        }
+        catch (Exception e) {
+
+        }
+
     }
 
     public static boolean checkIfUrlAlreadyScrapped(String pageUrl) throws IOException {

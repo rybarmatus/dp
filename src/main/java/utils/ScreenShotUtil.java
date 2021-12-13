@@ -14,25 +14,14 @@ public class ScreenShotUtil {
         File screen;
         try {
             screen = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        }
-        catch (TimeoutException e) {
+        } catch (TimeoutException e) {
             return;
         }
-
-//        Point p = element.getLocation();
-//
-//        int width = element.getSize().getWidth();
-//        int height = element.getSize().getHeight();
-
         BufferedImage img = ImageIO.read(screen);
 
-//        BufferedImage dest = img.getSubimage(p.getX(), p.getY(), width,
-//                height);
+        File f = new File(path + fileName + ".png");
 
-
-        File f = new File(path + fileName+".png");
-
-        System.out.println(path);
+        System.out.println(path + fileName);
 
         ImageIO.write(img, "png", f);
 

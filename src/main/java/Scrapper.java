@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class Scrapper {
 
-    private ScrappingUtils sU = new ScrappingUtils();
+    private final ScrappingUtils sU = new ScrappingUtils();
 
     public void scrapPages() throws IOException {
         String path;

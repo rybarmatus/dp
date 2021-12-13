@@ -6,11 +6,13 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -33,7 +35,6 @@ csvContent;
      */
     // TODO heureka eshop scrapping / alebo mozno bude lepsie amazon
 
-    private static int counter = 0;
     public WebDriverConfigUtil configUtil = new WebDriverConfigUtil();
     private final ScreenShotUtil ssu = new ScreenShotUtil();
 
@@ -49,23 +50,28 @@ csvContent;
                 return false;
             }
         } catch (IOException e) {
-            return false;
-        }
+
+                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+                return false;
+           }
         pageUrl = "http://www." + pageUrl;
         try {
             open(pageUrl);
+            WebDriverWait wait = new WebDriverWait(WebDriverRunner.getWebDriver(), Duration.ofSeconds(5));
+            wait.until(webDriver -> "complete".equals(Selenide.executeJavaScript("return document.readyState")));
         } catch (Exception e) {
             System.out.println("Nenacitala sa stranka -> " + pageUrl);
+            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
             return false;
         }
-        sleep(500);
         scrollToBottom();
-
+        sleep(1000);
         try {
             $(By.tagName("body")).shouldBe(Condition.visible);
 
         } catch (com.codeborne.selenide.ex.ElementNotFound e) {
             e.printStackTrace();
+            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
             return false;
         }
 
@@ -115,35 +121,43 @@ csvContent;
         }
     }
 
-    public void takeScreenshot(String path, String scrnShotName) {
-        sleep(5);
+    public void takeScreenshot(String path, String pageUrl) {
+        sleep(2000);
         SelenideElement element = null;
         try {
-            element = $(By.tagName("body"));
+            element = $(By.tagName("html"));
         } catch (com.codeborne.selenide.ex.ElementNotFound e) {
+            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
             e.printStackTrace();
         }
 
         if (element == null) return;
         Long h = getHeight();
         int height = 0;
-        if (h != null) height = h.intValue();
+        int width = 0;
+        Long w = getWidth();
+        if (h == null) height = element.getSize().getHeight();
         else {
-            height = element.getSize().getHeight();
+            height = Math.max(element.getSize().getHeight(), h.intValue());
         }
-        long width = element.getSize().getWidth();
+        if(w == null) width = element.getSize().getWidth();
+        else {
+            width = Math.max(element.getSize().getWidth(), w.intValue());
+        }
         /*
          * natiahne sa velkost okna podla vysky stranky
          * aby bol screenshot celej stranky
          */
         WebDriver driver = WebDriverRunner.getWebDriver();
-        driver.manage().window().setSize(new Dimension((int) width, height));
+        driver.manage().window().setSize(new Dimension(width, height));
         try {
 
             if (element.isDisplayed()) {
                 if (height > 0 && width > 0) {
-//                    width = Math.min(h, 14000);
-                    this.ssu.shootWebElement(element, WebDriverRunner.getWebDriver(), path, String.valueOf(counter), (int) height, (int) width);
+                    this.ssu.shootWebElement(element, WebDriverRunner.getWebDriver(), path, pageUrl, height, width);
+                }
+                else {
+                    CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
                 }
             }
 
@@ -152,13 +166,15 @@ csvContent;
             try {
                 bi = Screenshots.takeScreenShotAsImage(element);
             } catch (Exception ee) {
+                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
                 return;
             }
-            File outputfile = new File(path + scrnShotName + ".png");
+            File outputfile = new File(path + pageUrl + ".png");
             if (bi == null) return;
             try {
                 ImageIO.write(bi, "png", outputfile);
             } catch (Exception ee) {
+                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
                 ee.printStackTrace();
             }
         }
@@ -177,10 +193,35 @@ csvContent;
         return null;
     }
 
+    public Long getWidth() {
+        if($(By.tagName("body")).exists()) {
+            try {
+                return Selenide.executeJavaScript(" if(document.body != undefined) { return document.body.scrollWidth }");
+            }
+            catch (Exception e) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
     // obcas sa content stranky dynamicky dotahuje scrollovanim
+    public static void scrollToTop() {
+        if ($(By.tagName("body")).exists() && $(By.tagName("body")).isDisplayed()) {
+            try {
+                Selenide.executeJavaScript(" window.scrollTo(0,0); ");
+            }
+            catch (Exception e) {
+                System.out.println("padol javascript");
+            }
+        }
+    }
+
     public static void scrollToBottom() {
         if ($(By.tagName("body")).exists() && $(By.tagName("body")).isDisplayed()) {
             try {
+                Selenide.executeJavaScript(" if (document.body != undefined && document.body != null) { window.scrollTo(0, document.body.scrollWidth); } ");
                 Selenide.executeJavaScript(" if (document.body != undefined && document.body != null) { window.scrollTo(0, document.body.scrollHeight); } ");
             }
             catch (Exception e) {
@@ -188,6 +229,7 @@ csvContent;
             }
         }
     }
+
 
 
     public void scrapPage(String pageUrl, String path) {
@@ -198,9 +240,8 @@ csvContent;
             } catch (IOException e) {
                 return;
             }
-            takeScreenshot(path, String.valueOf(counter));
+            takeScreenshot(path, pageUrl);
         }
-        counter++;
     }
 
     @Test
