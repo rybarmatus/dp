@@ -2,8 +2,10 @@ package utils;
 
 public enum ConfigEnum {
 
-    CSV_DIR_PATH("C:\\Users\\mmatu\\Documents\\škola\\DP\\web_categories"),
-    BASE_PATH("C:\\Users\\mmatu\\Documents\\škola\\DP\\"),
+    CSV_CATEGORIES_PATH("C:\\Users\\mmatu\\Documents\\škola\\DP\\web_categories"),
+    CSV_CATEGORIES_PATH_2("C:\\Users\\mmatu\\Documents\\škola\\DP\\web_categories - Copy"),
+    BASE_PATH("C:\\Users\\mmatu\\Documents\\škola\\DP"),
+    DEST_PATH("F:\\dp2"),
     SCRAPPED_PAGES_PATH("C:\\Users\\mmatu\\Documents\\škola\\DP\\scrappedUrls.csv"),
     SCRAPPED_PAGES_PATH_FAILED("C:\\Users\\mmatu\\Documents\\škola\\DP\\scrappedUrls_fail.csv"),
     EXTENSION_COOKIE_1("C:\\Users\\mmatu\\Documents\\škola\\DP\\extensions\\extension_1_38_6_0.crx"),

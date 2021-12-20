@@ -44,7 +44,7 @@ csvContent;
         configUtil.setUpFirefox();
     }
 
-    public boolean openPage(String pageUrl) {
+    public boolean openPage(String pageUrl, String category) {
 //        try {
 //            if (CsvWorkerUtil.checkIfUrlAlreadyScrapped(pageUrl)) {
 //                System.out.println("Stranku " + pageUrl + " som uz scrapoval! Idem na dalsiu");
@@ -62,7 +62,7 @@ csvContent;
             wait.until(webDriver -> "complete".equals(Selenide.executeJavaScript("return document.readyState")));
         } catch (Exception e) {
             System.out.println("Nenacitala sa stranka -> " + pageUrl);
-            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
             return false;
         }
         scrollToBottom();
@@ -72,7 +72,8 @@ csvContent;
 
         } catch (com.codeborne.selenide.ex.ElementNotFound e) {
             e.printStackTrace();
-            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+            System.out.println("Nenasiel sa body element stranky " + pageUrl);
+            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
             return false;
         }
 
@@ -116,26 +117,28 @@ csvContent;
         );
     }
 
-        public static void clickSafely(SelenideElement element) {
-            if (element.exists() && element.isDisplayed() && element.isEnabled()) {
-                Selenide.executeJavaScript("arguments[0].click()", element);
-            }
+    public static void clickSafely(SelenideElement element) {
+        if (element.exists() && element.isDisplayed() && element.isEnabled()) {
+            Selenide.executeJavaScript("arguments[0].click()", element);
         }
+    }
 
-        public void takeScreenshot(String path, String pageUrl) {
-            sleep(2000);
-            SelenideElement element = null;
-            try {
-                element = $(By.tagName("html"));
-            } catch (Exception exc) {
-                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
-                exc.printStackTrace();
-                return;
-            }
-            try {
-                element = $(By.tagName("html"));
-            } catch (com.codeborne.selenide.ex.ElementNotFound e) {
-                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+    public void takeScreenshot(String path, String pageUrl, String category) {
+        sleep(2000);
+        SelenideElement element = null;
+        try {
+            element = $(By.tagName("html"));
+        } catch (Exception exc) {
+            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
+            System.out.println("Nenaslo sa html stranky " + pageUrl);
+            exc.printStackTrace();
+            return;
+        }
+        try {
+            element = $(By.tagName("html"));
+        } catch (com.codeborne.selenide.ex.ElementNotFound e) {
+            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
+            System.out.println("Nenaslo sa html stranky " + pageUrl);
             e.printStackTrace();
             return;
         }
@@ -149,7 +152,7 @@ csvContent;
         else {
             height = Math.max(element.getSize().getHeight(), h.intValue());
         }
-        if(w == null) width = element.getSize().getWidth();
+        if (w == null) width = element.getSize().getWidth();
         else {
             width = Math.max(element.getSize().getWidth(), w.intValue());
         }
@@ -159,8 +162,9 @@ csvContent;
          */
         WebDriver driver = WebDriverRunner.getWebDriver();
         driver.manage().window().setSize(new Dimension(width, height));
-        if(width > 5000) {
-            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+        if (width > 5000) {
+            System.out.println("Sirka strankcy vacsia nez 5000px " + pageUrl);
+            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
             return;
         }
         try {
@@ -168,9 +172,9 @@ csvContent;
             if (element.isDisplayed()) {
                 if (height > 0 && width > 0) {
                     this.ssu.shootWebElement(element, WebDriverRunner.getWebDriver(), path, pageUrl, height, width);
-                }
-                else {
-                    CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+                } else {
+                    System.out.println("Vyska alebo sirka stranky < 0 " + pageUrl);
+                    CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
                     return;
                 }
             }
@@ -180,13 +184,14 @@ csvContent;
             try {
                 try {
                     bi = Screenshots.takeScreenShotAsImage(element);
-                }
-                catch (WebDriverException we) {
-                    CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+                } catch (WebDriverException we) {
+                    System.out.println("Chyba pri screenshote stranky " + pageUrl);
+                    CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
                     return;
                 }
             } catch (Exception ee) {
-                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+                System.out.println("Chyba pri screenshote stranky " + pageUrl);
+                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
                 return;
             }
             File outputfile = new File(path + pageUrl + ".png");
@@ -194,18 +199,18 @@ csvContent;
             try {
                 ImageIO.write(bi, "png", outputfile);
             } catch (Exception ee) {
-                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+                System.out.println("Chyba pri screenshote stranky " + pageUrl);
+                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
                 ee.printStackTrace();
             }
         }
     }
 
     public Long getHeight() {
-        if($(By.tagName("body")).exists()) {
+        if ($(By.tagName("body")).exists()) {
             try {
                 return Selenide.executeJavaScript(" if(document.body != undefined) { return document.body.scrollHeight }");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 return null;
             }
         }
@@ -214,11 +219,10 @@ csvContent;
     }
 
     public Long getWidth() {
-        if($(By.tagName("body")).exists()) {
+        if ($(By.tagName("body")).exists()) {
             try {
                 return Selenide.executeJavaScript(" if(document.body != undefined) { return document.body.scrollWidth }");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 return null;
             }
         }
@@ -231,8 +235,7 @@ csvContent;
         if ($(By.tagName("body")).exists() && $(By.tagName("body")).isDisplayed()) {
             try {
                 Selenide.executeJavaScript(" window.scrollTo(0,0); ");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 System.out.println("padol javascript");
             }
         }
@@ -243,30 +246,28 @@ csvContent;
             try {
                 Selenide.executeJavaScript(" if (document.body != undefined && document.body != null) { window.scrollTo(0, document.body.scrollWidth); } ");
                 Selenide.executeJavaScript(" if (document.body != undefined && document.body != null) { window.scrollTo(0, document.body.scrollHeight); } ");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 System.out.println("padol javascript");
             }
         }
     }
 
 
+    public void scrapPage(String pageUrl, String path, String category) {
 
-    public void scrapPage(String pageUrl, String path) {
-
-        if (openPage(pageUrl)) {
+        if (openPage(pageUrl, category)) {
             try {
-                CsvWorkerUtil.storeScrapedUrl(pageUrl);
+                CsvWorkerUtil.storeScrapedUrl(pageUrl, category);
             } catch (IOException e) {
                 return;
             }
-            takeScreenshot(path, pageUrl);
+            takeScreenshot(path, pageUrl, category);
         }
     }
 
     @Test
     public void tst() {
-        scrapPage("designlovefest.com", ConfigEnum.SCRAPPED_PAGES_PATH.label);
+        scrapPage("designlovefest.com", ConfigEnum.SCRAPPED_PAGES_PATH.label, null);
     }
 
     @Test

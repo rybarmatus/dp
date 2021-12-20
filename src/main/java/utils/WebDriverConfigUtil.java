@@ -53,7 +53,7 @@ public class WebDriverConfigUtil {
                 .setPageLoadStrategy(PageLoadStrategy.NORMAL)
                 .setPageLoadTimeout(java.time.Duration.ofSeconds(100))
                 .addArguments("--disable-gpu, --hide-scrollbars")
-                .setLogLevel(FirefoxDriverLogLevel.ERROR);
+                .setLogLevel(FirefoxDriverLogLevel.FATAL);
                 ;
         WebDriver driver = new FirefoxDriver(options);
         WebDriverRunner.setWebDriver(driver);

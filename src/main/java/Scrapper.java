@@ -14,16 +14,22 @@ public class Scrapper {
     public void scrapPagesWithDeletion() throws IOException {
         String path;
         String page;
-        Set<String> csvFiles = CsvWorkerUtil.listFiles("C:\\Users\\mmatu\\Documents\\škola\\DP\\web_categories - Copy");
+        Set<String> csvFiles = CsvWorkerUtil.listFiles(ConfigEnum.CSV_CATEGORIES_PATH_2.label);
         for (String csvFile : csvFiles) {
             try {
                 path = CsvWorkerUtil.createDirectory(csvFile);
-                do {
-                    page = CsvWorkerUtil.readPageFromCSV(csvFile);
-                    if(path == null || page == null) break;
-                    this.sU.scrapPage(page, path);
+                String category = CsvWorkerUtil.extractCategory(path);
+                if(path == null || category == null) {
+                    System.out.println("Cesta k CSV alebo kategoria nemozu byt null!! cesta: " + path + " kategoria: " + category);
                 }
-                while (page != null || path != null);
+                while(true) {
+                    page = CsvWorkerUtil.readPageFromCSV(csvFile);
+                    if (page == null) {
+                        System.out.println("||||||||||||||||||| \n Odstranujem "+ csvFile + "lebo je prazdny");
+
+                    }
+                    this.sU.scrapPage(page, path, category);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -32,14 +38,14 @@ public class Scrapper {
 
     public void scrapPages() throws IOException {
         String path;
-        Set<String> csvFiles = CsvWorkerUtil.listFiles(ConfigEnum.CSV_DIR_PATH.label);
+        Set<String> csvFiles = CsvWorkerUtil.listFiles(ConfigEnum.CSV_CATEGORIES_PATH.label);
         for (String csvFile : csvFiles) {
             try {
                 Set<String> pages = CsvWorkerUtil.getPagesFromCSV(csvFile);
                 for (String pageUrl : pages) {
                     path = CsvWorkerUtil.createDirectory(csvFile);
                     if (path != null) {
-                        this.sU.scrapPage(pageUrl, path);
+                        this.sU.scrapPage(pageUrl, path, null);
                     }
 
                 }

@@ -43,7 +43,7 @@ public class CsvWorkerUtil {
         List<String[]> pages;
         pages = reader.readAll();
         reader.close();
-        if(pages == null) return null;
+        if (pages == null) return null;
         if (CollectionUtils.isEmpty(pages)) return null;
         retPage = pages.get(0)[0];
         if (StringUtils.isBlank(retPage)) return null;
@@ -60,7 +60,7 @@ public class CsvWorkerUtil {
 
     public static String createDirectory(String dirName) {
         if (StringUtils.isBlank(dirName)) return null;
-        dirName = dirName.replace("C:\\Users\\mmatu\\Documents\\škola\\DP", "F:\\dp2");
+        dirName = dirName.replace(ConfigEnum.BASE_PATH.label, ConfigEnum.DEST_PATH.label);
         if (!dirName.contains("~")) return null;
         if (dirName.contains(".csv")) dirName = dirName.replace(".csv", "");
         dirName = dirName.replace("~", "\\");
@@ -68,6 +68,15 @@ public class CsvWorkerUtil {
         File file = new File(dirName);
         file.mkdirs();
         return dirName;
+    }
+
+    public static String extractCategory(String path) {
+        if (StringUtils.isBlank(path)) return null;
+        String category = ConfigEnum.CSV_CATEGORIES_PATH_2.label.replace(ConfigEnum.BASE_PATH.label, "");
+        category = path.replace(category, "");
+        category = category.replace(ConfigEnum.DEST_PATH.label+"\\", "");
+        category = category.substring(0, category.lastIndexOf('\\'));
+        return category;
     }
 
     public static void storeScrapedUrl(String pageUrl) throws IOException {
@@ -78,6 +87,16 @@ public class CsvWorkerUtil {
         csv.close();
     }
 
+    public static void storeScrapedUrl(String pageUrl, String category) throws IOException {
+        FileWriter csv = new FileWriter(ConfigEnum.SCRAPPED_PAGES_PATH.label, true);
+        String record = pageUrl + "," + category;
+        csv.append(record);
+        csv.append(",");
+        csv.append("\n");
+        csv.close();
+    }
+
+
     public static void storeScrapedUrlFailed(String pageUrl) {
         try {
             FileWriter csv = new FileWriter(ConfigEnum.SCRAPPED_PAGES_PATH_FAILED.label, true);
@@ -86,9 +105,21 @@ public class CsvWorkerUtil {
             csv.append("\n");
             csv.close();
         } catch (Exception e) {
-
+            System.out.println("Chyba pri zapisovani url");
         }
+    }
 
+    public static void storeScrapedUrlFailed(String pageUrl, String category) {
+        try {
+            FileWriter csv = new FileWriter(ConfigEnum.SCRAPPED_PAGES_PATH_FAILED.label, true);
+            String record = pageUrl + "," + category;
+            csv.append(record);
+            csv.append(",");
+            csv.append("\n");
+            csv.close();
+        } catch (Exception e) {
+            System.out.println("Chyba pri zapisovani url");
+        }
     }
 
     public static boolean checkIfUrlAlreadyScrapped(String pageUrl) throws IOException {
