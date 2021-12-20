@@ -6,10 +6,7 @@ import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.firefox.ProfilesIni;
+import org.openqa.selenium.firefox.*;
 
 import java.io.File;
 
@@ -56,6 +53,7 @@ public class WebDriverConfigUtil {
                 .setPageLoadStrategy(PageLoadStrategy.NORMAL)
                 .setPageLoadTimeout(java.time.Duration.ofSeconds(100))
                 .addArguments("--disable-gpu, --hide-scrollbars")
+                .setLogLevel(FirefoxDriverLogLevel.ERROR);
                 ;
         WebDriver driver = new FirefoxDriver(options);
         WebDriverRunner.setWebDriver(driver);

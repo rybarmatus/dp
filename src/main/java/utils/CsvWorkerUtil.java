@@ -1,22 +1,23 @@
 package utils;
 
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CsvWorkerUtil {
 
     // prebehne priecinok a vrati nazvy suborov v priecinku
-    public static Set<String> listFiles() throws IOException {
-        String dir = ConfigEnum.CSV_DIR_PATH.label;
+    public static Set<String> listFiles(String dir) throws IOException {
         try (Stream<Path> stream = Files.walk(Paths.get(dir), 1)) {
             return stream
                     .filter(file -> !Files.isDirectory(file))
@@ -36,9 +37,30 @@ public class CsvWorkerUtil {
         return pages;
     }
 
+    public static String readPageFromCSV(String pathToCsv) throws IOException {
+        String retPage;
+        CSVReader reader = new CSVReader(new FileReader(pathToCsv));
+        List<String[]> pages;
+        pages = reader.readAll();
+        reader.close();
+        if(pages == null) return null;
+        if (CollectionUtils.isEmpty(pages)) return null;
+        retPage = pages.get(0)[0];
+        if (StringUtils.isBlank(retPage)) return null;
+        String finalRetPage = retPage;
+        List<String[]> filtered = pages.stream()
+                .filter(entry -> !entry[0].equals(finalRetPage))
+                .collect(Collectors.toList());
+        FileWriter fw = new FileWriter(pathToCsv);
+        CSVWriter w = new CSVWriter(fw);
+        w.writeAll(filtered);
+        w.close();
+        return retPage;
+    }
+
     public static String createDirectory(String dirName) {
         if (StringUtils.isBlank(dirName)) return null;
-        dirName = dirName.replace("C:\\Users\\mmatu\\Documents\\škola\\DP", "F:\\dp_data");
+        dirName = dirName.replace("C:\\Users\\mmatu\\Documents\\škola\\DP", "F:\\dp2");
         if (!dirName.contains("~")) return null;
         if (dirName.contains(".csv")) dirName = dirName.replace(".csv", "");
         dirName = dirName.replace("~", "\\");
@@ -63,8 +85,7 @@ public class CsvWorkerUtil {
             csv.append(",");
             csv.append("\n");
             csv.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
         }
 
@@ -82,7 +103,7 @@ public class CsvWorkerUtil {
         }
         String row;
         while ((row = csvReader.readLine()) != null) {
-            if(row.contains(pageUrl)) return true;
+            if (row.contains(pageUrl)) return true;
         }
         csvReader.close();
 

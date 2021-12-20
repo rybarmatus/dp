@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.imageio.ImageIO;
@@ -44,16 +45,16 @@ csvContent;
     }
 
     public boolean openPage(String pageUrl) {
-        try {
-            if (CsvWorkerUtil.checkIfUrlAlreadyScrapped(pageUrl)) {
-                System.out.println("Stranku " + pageUrl + " som uz scrapoval! Idem na dalsiu");
-                return false;
-            }
-        } catch (IOException e) {
-
-                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
-                return false;
-           }
+//        try {
+//            if (CsvWorkerUtil.checkIfUrlAlreadyScrapped(pageUrl)) {
+//                System.out.println("Stranku " + pageUrl + " som uz scrapoval! Idem na dalsiu");
+//                return false;
+//            }
+//        } catch (IOException e) {
+//
+//                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+//                return false;
+//           }
         pageUrl = "http://www." + pageUrl;
         try {
             open(pageUrl);
@@ -115,20 +116,28 @@ csvContent;
         );
     }
 
-    public static void clickSafely(SelenideElement element) {
-        if (element.exists() && element.isDisplayed() && element.isEnabled()) {
-            Selenide.executeJavaScript("arguments[0].click()", element);
+        public static void clickSafely(SelenideElement element) {
+            if (element.exists() && element.isDisplayed() && element.isEnabled()) {
+                Selenide.executeJavaScript("arguments[0].click()", element);
+            }
         }
-    }
 
-    public void takeScreenshot(String path, String pageUrl) {
-        sleep(2000);
-        SelenideElement element = null;
-        try {
-            element = $(By.tagName("html"));
-        } catch (com.codeborne.selenide.ex.ElementNotFound e) {
-            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+        public void takeScreenshot(String path, String pageUrl) {
+            sleep(2000);
+            SelenideElement element = null;
+            try {
+                element = $(By.tagName("html"));
+            } catch (Exception exc) {
+                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+                exc.printStackTrace();
+                return;
+            }
+            try {
+                element = $(By.tagName("html"));
+            } catch (com.codeborne.selenide.ex.ElementNotFound e) {
+                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
             e.printStackTrace();
+            return;
         }
 
         if (element == null) return;
@@ -150,6 +159,10 @@ csvContent;
          */
         WebDriver driver = WebDriverRunner.getWebDriver();
         driver.manage().window().setSize(new Dimension(width, height));
+        if(width > 5000) {
+            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+            return;
+        }
         try {
 
             if (element.isDisplayed()) {
@@ -158,13 +171,20 @@ csvContent;
                 }
                 else {
                     CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+                    return;
                 }
             }
 
         } catch (Exception e) {
             BufferedImage bi;
             try {
-                bi = Screenshots.takeScreenShotAsImage(element);
+                try {
+                    bi = Screenshots.takeScreenShotAsImage(element);
+                }
+                catch (WebDriverException we) {
+                    CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
+                    return;
+                }
             } catch (Exception ee) {
                 CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
                 return;
