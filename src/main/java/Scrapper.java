@@ -26,7 +26,8 @@ public class Scrapper {
                     page = CsvWorkerUtil.readPageFromCSV(csvFile);
                     if (page == null) {
                         System.out.println("||||||||||||||||||| \n Odstranujem "+ csvFile + "lebo je prazdny");
-
+                        CsvWorkerUtil.removeFile(csvFile);
+                        break;
                     }
                     this.sU.scrapPage(page, path, category);
                 }

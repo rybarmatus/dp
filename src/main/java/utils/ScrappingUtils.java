@@ -2,6 +2,7 @@ package utils;
 
 
 import com.codeborne.selenide.*;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
@@ -55,13 +56,14 @@ csvContent;
 //                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
 //                return false;
 //           }
-        pageUrl = "http://www." + pageUrl;
+        pageUrl = formatUrl(pageUrl);
         try {
             open(pageUrl);
             WebDriverWait wait = new WebDriverWait(WebDriverRunner.getWebDriver(), Duration.ofSeconds(5));
             wait.until(webDriver -> "complete".equals(Selenide.executeJavaScript("return document.readyState")));
         } catch (Exception e) {
-            System.out.println("Nenacitala sa stranka -> " + pageUrl);
+            System.out.println("" +
+                    "Nenacitala sa stranka -> " + pageUrl + " " + category);
             CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
             return false;
         }
@@ -78,6 +80,19 @@ csvContent;
         }
 
         return hideAds();
+    }
+
+    private String formatUrl(String pageUrl) {
+        if (pageUrl != null) {
+            if (StringUtils.isNotBlank(pageUrl)) {
+                if (pageUrl.contains("http:"))
+                    return pageUrl;
+                else if (pageUrl.contains("https:"))
+                    return pageUrl;
+            }
+        }
+        pageUrl = "http://www." + pageUrl;
+        return pageUrl;
     }
 
     public static boolean hideAds() {
@@ -163,9 +178,9 @@ csvContent;
         WebDriver driver = WebDriverRunner.getWebDriver();
         driver.manage().window().setSize(new Dimension(width, height));
         if (width > 5000) {
-            System.out.println("Sirka strankcy vacsia nez 5000px " + pageUrl);
+            System.out.println("Sirka strancy vacsia nez 5000px " + pageUrl + " " + category);
             CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
-            return;
+            System.exit(1);
         }
         try {
 

@@ -141,4 +141,13 @@ public class CsvWorkerUtil {
         return false;
     }
 
+    public static void removeFile(String path) {
+        try {
+            Files.delete(Paths.get(path));
+        } catch (IOException e) {
+            System.out.println("Nepodarilo sa odstranit subor !!!!!");
+            e.printStackTrace();
+        }
+    }
+
 }

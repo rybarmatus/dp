@@ -39,6 +39,7 @@ public class WebDriverConfigUtil {
 
     public void setUpFirefox() {
         System.setProperty("webdriver.gecko.driver", "C:\\Users\\mmatu\\Documents\\škola\\DP\\firefox_driver\\geckodriver.exe");
+        System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
         ProfilesIni profile = new ProfilesIni();
 
         FirefoxProfile fp = profile.getProfile("Test");
@@ -54,7 +55,7 @@ public class WebDriverConfigUtil {
                 .setPageLoadTimeout(java.time.Duration.ofSeconds(100))
                 .addArguments("--disable-gpu, --hide-scrollbars")
                 .setLogLevel(FirefoxDriverLogLevel.FATAL);
-                ;
+
         WebDriver driver = new FirefoxDriver(options);
         WebDriverRunner.setWebDriver(driver);
     }
