@@ -48,7 +48,7 @@ public class WebDriverConfigUtil {
         fp.addExtension(new File(ConfigEnum.EXT_FIREFOX_POPER_PATH.label));
 
         FirefoxOptions options = new FirefoxOptions()
-                .setHeadless(true)
+//                .setHeadless(true)
                 .setAcceptInsecureCerts(true)
                 .setProfile(fp)
                 .setPageLoadStrategy(PageLoadStrategy.NORMAL)

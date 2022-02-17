@@ -46,16 +46,6 @@ csvContent;
     }
 
     public boolean openPage(String pageUrl, String category) {
-//        try {
-//            if (CsvWorkerUtil.checkIfUrlAlreadyScrapped(pageUrl)) {
-//                System.out.println("Stranku " + pageUrl + " som uz scrapoval! Idem na dalsiu");
-//                return false;
-//            }
-//        } catch (IOException e) {
-//
-//                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl);
-//                return false;
-//           }
         pageUrl = formatUrl(pageUrl);
         try {
             open(pageUrl);
@@ -69,6 +59,7 @@ csvContent;
         }
         scrollToBottom();
         sleep(1000);
+        scrollToTop();
         try {
             $(By.tagName("body")).shouldBe(Condition.visible);
 
@@ -139,8 +130,8 @@ csvContent;
     }
 
     public void takeScreenshot(String path, String pageUrl, String category) {
-        sleep(2000);
-        SelenideElement element = null;
+        sleep(1000);
+        SelenideElement element;
         try {
             element = $(By.tagName("html"));
         } catch (Exception exc) {
@@ -149,44 +140,20 @@ csvContent;
             exc.printStackTrace();
             return;
         }
-        try {
-            element = $(By.tagName("html"));
-        } catch (com.codeborne.selenide.ex.ElementNotFound e) {
-            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
-            System.out.println("Nenaslo sa html stranky " + pageUrl);
-            e.printStackTrace();
-            return;
-        }
-
-        if (element == null) return;
         Long h = getHeight();
         int height = 0;
-        int width = 0;
-        Long w = getWidth();
-        if (h == null) height = element.getSize().getHeight();
-        else {
-            height = Math.max(element.getSize().getHeight(), h.intValue());
-        }
-        if (w == null) width = element.getSize().getWidth();
-        else {
-            width = Math.max(element.getSize().getWidth(), w.intValue());
-        }
-        /*
-         * natiahne sa velkost okna podla vysky stranky
-         * aby bol screenshot celej stranky
-         */
+        int width = 1920;
+        if (h != null) height = h.intValue();
+        if (height == 0) height = element.getSize().getHeight();
+
         WebDriver driver = WebDriverRunner.getWebDriver();
         driver.manage().window().setSize(new Dimension(width, height));
-        if (width > 5000) {
-            System.out.println("Sirka strancy vacsia nez 5000px " + pageUrl + " " + category);
-            CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
-            System.exit(1);
-        }
         try {
 
             if (element.isDisplayed()) {
-                if (height > 0 && width > 0) {
-                    this.ssu.shootWebElement(element, WebDriverRunner.getWebDriver(), path, pageUrl, height, width);
+                if (height > 0) {
+//                    this.ssu.shootWebElement(driver, path, pageUrl);
+                    this.ssu.shootPageByParts(height, driver, path, pageUrl);
                 } else {
                     System.out.println("Vyska alebo sirka stranky < 0 " + pageUrl);
                     CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
@@ -196,7 +163,6 @@ csvContent;
 
         } catch (Exception e) {
             BufferedImage bi;
-            try {
                 try {
                     bi = Screenshots.takeScreenShotAsImage(element);
                 } catch (WebDriverException we) {
@@ -204,11 +170,6 @@ csvContent;
                     CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
                     return;
                 }
-            } catch (Exception ee) {
-                System.out.println("Chyba pri screenshote stranky " + pageUrl);
-                CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
-                return;
-            }
             File outputfile = new File(path + pageUrl + ".png");
             if (bi == null) return;
             try {
