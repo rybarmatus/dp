@@ -12,8 +12,10 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 import static com.codeborne.selenide.Selenide.*;
@@ -74,6 +76,19 @@ csvContent;
     }
 
     private String formatUrl(String pageUrl) {
+        if (pageUrl != null) {
+            if (StringUtils.isNotBlank(pageUrl)) {
+                if (pageUrl.contains("http:"))
+                    return pageUrl;
+                else if (pageUrl.contains("https:"))
+                    return pageUrl;
+            }
+        }
+        pageUrl = "https://www." + pageUrl;
+        return pageUrl;
+    }
+
+    private String formatUrlUnsecured(String pageUrl) {
         if (pageUrl != null) {
             if (StringUtils.isNotBlank(pageUrl)) {
                 if (pageUrl.contains("http:"))
@@ -238,6 +253,27 @@ csvContent;
                 return;
             }
             takeScreenshot(path, pageUrl, category);
+        }
+    }
+
+    public void downloadHtml(String urlString, String path, String category) throws MalformedURLException {
+        openPage(urlString, category);
+        final InputStream source = new ByteArrayInputStream(WebDriverRunner.getWebDriver().getPageSource().getBytes());
+
+
+        try (
+                BufferedReader reader = new BufferedReader(new InputStreamReader(source));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(path + urlString + ".html"));
+        ) {
+            String htmlLine;
+            while ((htmlLine = reader.readLine()) != null) {
+                writer.write(htmlLine);
+            }
+            reader.close();
+            writer.close();
+            System.out.println(Thread.currentThread().getName() + " stiahol html stranky " + urlString);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

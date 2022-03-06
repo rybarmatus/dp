@@ -70,6 +70,18 @@ public class CsvWorkerUtil {
         return dirName;
     }
 
+    public static String createDirectory(String dirName, String sourcePath, String destPath) {
+        if (StringUtils.isBlank(dirName)) return null;
+        dirName = dirName.replace(sourcePath, destPath);
+        if (!dirName.contains("~")) return null;
+        if (dirName.contains(".csv")) dirName = dirName.replace(".csv", "");
+        dirName = dirName.replace("~", "\\");
+        dirName = dirName + "\\";
+        File file = new File(dirName);
+        file.mkdirs();
+        return dirName;
+    }
+
     public static String extractCategory(String path) {
         if (StringUtils.isBlank(path)) return null;
         String category = ConfigEnum.CSV_CATEGORIES_PATH_2.label.replace(ConfigEnum.BASE_PATH.label, "");

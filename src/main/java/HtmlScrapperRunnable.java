@@ -1,20 +1,15 @@
 import java.io.IOException;
 
-public class ScrapperThreader extends Thread{
-
-    public ScrapperThreader(String threadName) {
-        super(threadName);
-    }
+public class HtmlScrapperRunnable implements  Runnable {
 
     @Override
     public void run() {
         System.out.println("spustil sa thread " + Thread.currentThread().getName());
-        Scrapper scp = new Scrapper();
+        ScrapperHTML scp = new ScrapperHTML();
         try {
             scp.scrapPagesWithDeletion();
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
-        super.run();
     }
 }

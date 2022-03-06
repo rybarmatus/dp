@@ -38,7 +38,7 @@ public class WebDriverConfigUtil {
     }
 
     public void setUpFirefox() {
-        System.setProperty("webdriver.gecko.driver", "C:\\Users\\mmatu\\Documents\\škola\\DP\\firefox_driver\\geckodriver.exe");
+        System.setProperty("webdriver.gecko.driver", "E:\\win\\DP\\firefox_driver\\geckodriver.exe");
         System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
         ProfilesIni profile = new ProfilesIni();
 

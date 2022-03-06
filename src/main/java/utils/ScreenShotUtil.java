@@ -87,7 +87,7 @@ public class ScreenShotUtil {
 //        }
 //        g2d.dispose();
 //        ImageIO.write(concatImage, "png", new File(path + fileName + ".png"));
-        System.out.println("Ukladam " + path + fileName);
+        System.out.println(Thread.currentThread().getName() + " uklada " + path + fileName);
     }
 
     private void hideStaticElements(WebDriver driver) {
