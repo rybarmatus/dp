@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.sleep;
@@ -68,6 +69,14 @@ public class ScreenShotUtil {
                 hided = true;
             }
             String postfix = i == 0? "" : ""+i;
+            if(fileName.contains("/")) {
+                fileName = fileName.split("/")[2];
+            }
+            else {
+                int rand = ThreadLocalRandom.current().nextInt();
+                rand = rand < 0 ? rand * -1 : rand;
+                fileName = String.valueOf(rand);
+            }
             ImageIO.write(slice, "png", new File(path + fileName + postfix + ".png"));
         }
 

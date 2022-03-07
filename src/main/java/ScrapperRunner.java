@@ -11,25 +11,6 @@ public class ScrapperRunner {
         executor.execute(new ScreenScrapperRunnable());
         executor.execute(new ScreenScrapperRunnable());
         executor.execute(new ScreenScrapperRunnable());
-//        executor.execute(new ScreenScrapperRunnable());
-//        executor.execute(new ScreenScrapperRunnable());
-//        executor.execute(new ScreenScrapperRunnable());
-//        executor.execute(new ScreenScrapperRunnable());
-//        executor.execute(new ScreenScrapperRunnable());
-
-
-//        executor.execute(new HtmlScrapperRunnable());
-//        executor.execute(new HtmlScrapperRunnable());
-//        executor.execute(new HtmlScrapperRunnable());
-//        executor.execute(new HtmlScrapperRunnable());
-//        executor.execute(new HtmlScrapperRunnable());
-//        executor.execute(new HtmlScrapperRunnable());
-//        executor.execute(new HtmlScrapperRunnable());
-//        executor.execute(new HtmlScrapperRunnable());
-//        executor.execute(new HtmlScrapperRunnable());
-//        executor.execute(new HtmlScrapperRunnable());
-
-
 
     }
 }

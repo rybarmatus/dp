@@ -37,6 +37,33 @@ public class Scrapper {
         }
     }
 
+//    @Test
+//    public void scrapPagesWithDeletion(boolean parseUrl) throws IOException {
+//        String path;
+//        String page;
+//        Set<String> csvFiles = CsvWorkerUtil.listFiles(ConfigEnum.CSV_CATEGORIES_PATH_2.label);
+//        for (String csvFile : csvFiles) {
+//            try {
+//                path = CsvWorkerUtil.createDirectory(csvFile);
+//                String category = CsvWorkerUtil.extractCategory(path);
+//                if(path == null || category == null) {
+//                    System.out.println("Cesta k CSV alebo kategoria nemozu byt null!! cesta: " + path + " kategoria: " + category);
+//                }
+//                while(true) {
+//                    page = CsvWorkerUtil.readPageFromCSV(csvFile);
+//                    if (page == null) {
+//                        System.out.println("||||||||||||||||||| \n Odstranujem "+ csvFile + "lebo je prazdny");
+//                        CsvWorkerUtil.removeFile(csvFile);
+//                        break;
+//                    }
+//                    this.sU.scrapPage(page, path, category);
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+
     public void scrapPages() throws IOException {
         String path;
         Set<String> csvFiles = CsvWorkerUtil.listFiles(ConfigEnum.CSV_CATEGORIES_PATH.label);
