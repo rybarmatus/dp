@@ -43,9 +43,10 @@ public class WebDriverConfigUtil {
         ProfilesIni profile = new ProfilesIni();
 
         FirefoxProfile fp = profile.getProfile("Test");
-        fp.addExtension(new File(ConfigEnum.EXT_FIREFOX_DONT_CARE_COOKIES.label));
-        fp.addExtension(new File(ConfigEnum.EXT_FIREFOX_UBLOCK.label));
-        fp.addExtension(new File(ConfigEnum.EXT_FIREFOX_POPER_PATH.label));
+//        fp.addExtension(new File(ConfigEnum.EXT_FIREFOX_DONT_CARE_COOKIES.label));
+//        fp.addExtension(new File(ConfigEnum.EXT_FIREFOX_UBLOCK.label));
+//        fp.addExtension(new File(ConfigEnum.EXT_FIREFOX_POPER_PATH.label));
+        fp.addExtension(new File(ConfigEnum.EXT_FIREFOX_POPUPOFF.label));
 
         FirefoxOptions options = new FirefoxOptions()
 //                .setHeadless(true)
