@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -185,6 +186,14 @@ csvContent;
                     CsvWorkerUtil.storeScrapedUrlFailed(pageUrl, category);
                     return;
                 }
+            pageUrl = pageUrl.replaceAll("[\\\\/:*?\"<>|]", "");
+            pageUrl = pageUrl.replace("?", "");
+            pageUrl = pageUrl.replace("\\", "");
+            if(pageUrl == null || pageUrl.length() < 1) {
+                int rand = ThreadLocalRandom.current().nextInt();
+                rand = rand < 0 ? rand * -1 : rand;
+                pageUrl = String.valueOf(rand);
+            }
             File outputfile = new File(path + pageUrl + ".png");
             if (bi == null) return;
             try {
@@ -257,10 +266,16 @@ csvContent;
     }
 
     public void downloadHtml(String urlString, String path, String category) throws MalformedURLException {
+        if(urlString == null) return;
         openPage(urlString, category);
         final InputStream source = new ByteArrayInputStream(WebDriverRunner.getWebDriver().getPageSource().getBytes());
 
-
+        if(urlString.contains("https:/") || urlString.contains("http:/")) {
+            urlString = urlString.replace("https://", "");
+            urlString = urlString.replace("http://", "");
+            urlString = urlString.replace("www.", "");
+            urlString = urlString.split("/")[0];
+        }
         try (
                 BufferedReader reader = new BufferedReader(new InputStreamReader(source));
                 BufferedWriter writer = new BufferedWriter(new FileWriter(path + urlString + ".html"));

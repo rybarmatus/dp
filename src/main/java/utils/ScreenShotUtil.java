@@ -28,6 +28,9 @@ public class ScreenShotUtil {
             return;
         }
         BufferedImage img = ImageIO.read(screen);
+        if(fileName.contains("/")) {
+            fileName = fileName.split("/")[2];
+        }
 
         File f = new File(path + fileName + ".png");
 
@@ -71,12 +74,16 @@ public class ScreenShotUtil {
             String postfix = i == 0? "" : ""+i;
             if(fileName.contains("/")) {
                 fileName = fileName.split("/")[2];
+                fileName = fileName.replace('/','-');
             }
             else {
                 int rand = ThreadLocalRandom.current().nextInt();
                 rand = rand < 0 ? rand * -1 : rand;
                 fileName = String.valueOf(rand);
             }
+            fileName = fileName.replaceAll("[\\\\/:*?\"<>|]", "");
+            fileName = fileName.replace("?", "");
+            fileName = fileName.replace("\\", "");
             ImageIO.write(slice, "png", new File(path + fileName + postfix + ".png"));
         }
 
